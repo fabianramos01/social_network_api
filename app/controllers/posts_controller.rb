@@ -4,7 +4,7 @@ class PostsController < ApplicationController
   def index
     pagy, posts = pagy(Post.all)
     render json: { data: posts, page: pagy.page, items: pagy.items, 
-    last: pagy.last, pages: pagy.pages, prev: pagy.prev, next: pagy.next }
+    last: pagy.last, pages: pagy.pages, prev: pagy.prev, next: pagy.next, count: pagy.count }
   end
 
   def show
