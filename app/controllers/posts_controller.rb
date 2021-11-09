@@ -1,5 +1,7 @@
 class PostsController < ApplicationController
-  before_action :set_post, only: [:show, :set_like, :set_dislike, :add_comment]
+  before_action :set_post, only: [:show, :add_comment]
+  before_action :set_reaction, only: [:set_post_reaction, :remove_post_reaction]
+  REACTION_LIST = ['like', 'dislike']
 
   def index
     pagy, posts = pagy(Post.all)
@@ -21,13 +23,21 @@ class PostsController < ApplicationController
     end
   end
 
-  def set_like
-    @post.update(likes_count: @post.likes_count + 1)
+  def set_post_reaction
+    if params[:type] == 'like'
+      @post.update(likes_count: @post.likes_count + 1)
+    elsif params[:type] == 'dislike'
+      @post.update(dislikes_count: @post.dislikes_count + 1)
+    end
     render json: @post, status: :ok, location: @post
   end
 
-  def set_dislike
-    @post.update(dislikes_count: @post.dislikes_count + 1)
+  def remove_post_reaction
+    if params[:type] == 'like'
+      @post.update(likes_count: @post.likes_count - 1)
+    elsif params[:type] == 'dislike'
+      @post.update(dislikes_count: @post.dislikes_count - 1)
+    end
     render json: @post, status: :ok, location: @post
   end
 
@@ -53,5 +63,12 @@ class PostsController < ApplicationController
 
     def post_params
       params.require(:post).permit(:title, :content, :user_email)
+    end
+
+    def set_reaction
+      @post = Post.find(params[:id])
+      if !REACTION_LIST.include?(params[:type])
+        return render json: { error: "Tipo de reacción inválida." }, status: :not_found
+      end
     end
 end

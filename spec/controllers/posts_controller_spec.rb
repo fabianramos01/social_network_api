@@ -50,21 +50,51 @@ RSpec.describe "Posts", type: :request do
     end
   end
 
-  describe 'PATCH #set_like /api/posts/:id/like' do
+  describe 'POST #set_post_reaction /api/posts/reaction' do
     it 'add like to post' do
-      patch "/api/posts/#{@post.id}/like"
+      params = {
+        "id": @post.id,
+        "type": "like" 
+      }
+      post "/api/posts/reaction", params: params
       get "/api/posts/#{@post.id}"
       parsed_body = JSON.parse(body)
       expect(parsed_body['likes_count']).to eq(@post.likes_count + 1)
     end
-  end
-
-  describe 'PATCH #set_dislike /api/posts/:id/dislike' do
-    it 'add like to post' do
-      patch "/api/posts/#{@post.id}/dislike"
+    
+    it 'add dislike to post' do
+      params = {
+        "id": @post.id,
+        "type": "dislike" 
+      }
+      post "/api/posts/reaction", params: params
       get "/api/posts/#{@post.id}"
       parsed_body = JSON.parse(body)
       expect(parsed_body['dislikes_count']).to eq(@post.dislikes_count + 1)
+    end
+  end
+
+  describe 'DELETE #remove_post_reaction /api/posts/reaction' do
+    it 'add like to post' do
+      params = {
+        "id": @post.id,
+        "type": "like" 
+      }
+      delete "/api/posts/reaction", params: params
+      get "/api/posts/#{@post.id}"
+      parsed_body = JSON.parse(body)
+      expect(parsed_body['likes_count']).to eq(@post.likes_count - 1)
+    end
+    
+    it 'remove dislike to post' do
+      params = {
+        "id": @post.id,
+        "type": "dislike" 
+      }
+      delete "/api/posts/reaction", params: params
+      get "/api/posts/#{@post.id}"
+      parsed_body = JSON.parse(body)
+      expect(parsed_body['dislikes_count']).to eq(@post.dislikes_count - 1)
     end
   end
 end
